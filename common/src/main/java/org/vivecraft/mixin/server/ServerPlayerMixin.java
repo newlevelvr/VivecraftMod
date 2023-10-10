@@ -1,9 +1,24 @@
 package org.vivecraft.mixin.server;
 
+import com.mojang.authlib.GameProfile;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,29 +29,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.vivecraft.server.config.ServerConfig;
 import org.vivecraft.server.ServerVRPlayers;
 import org.vivecraft.server.ServerVivePlayer;
-
-import com.mojang.authlib.GameProfile;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ItemParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
+import org.vivecraft.server.config.ServerConfig;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
@@ -51,26 +46,6 @@ public abstract class ServerPlayerMixin extends Player {
 
 	public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
 		super(level, blockPos, f, gameProfile);
-	}
-
-	@Inject(at = @At("TAIL"), method = "initInventoryMenu")
-	public void menu(CallbackInfo ci) {
-		ServerVivePlayer serverviveplayer = getVivePlayer();
-		if (ServerConfig.vrFun.get() && serverviveplayer != null && serverviveplayer.isVR() && this.random.nextInt(40) == 3) {
-			ItemStack itemstack;
-			if (this.random.nextInt(2) == 1) {
-				itemstack = (new ItemStack(Items.PUMPKIN_PIE)).setHoverName(Component.literal("EAT ME"));
-			} else {
-				itemstack = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)
-						.setHoverName(Component.literal("DRINK ME"));
-			}
-
-			itemstack.getTag().putInt("HideFlags", 32);
-
-			if (this.getInventory().add(itemstack)) {
-				this.inventoryMenu.broadcastChanges();
-			}
-		}
 	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;tick()V", shift = Shift.AFTER), method = "doTick()V")

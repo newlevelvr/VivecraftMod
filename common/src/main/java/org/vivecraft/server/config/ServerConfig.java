@@ -7,9 +7,9 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import org.vivecraft.client.Xplat;
-import org.vivecraft.server.config.ConfigBuilder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class ServerConfig {
 
@@ -20,7 +20,6 @@ public class ServerConfig {
     public static ConfigBuilder.BooleanValue vive_only;
     public static ConfigBuilder.BooleanValue allow_op;
     public static ConfigBuilder.DoubleValue messageKickDelay;
-    public static ConfigBuilder.BooleanValue vrFun;
 
     public static ConfigBuilder.BooleanValue messagesEnabled;
     public static ConfigBuilder.StringValue messagesWelcomeVR;
@@ -122,10 +121,6 @@ public class ServerConfig {
             .push("messageAndKickDelay")
             .comment("Seconds to wait before kicking a player or sending welcome messages. The player's client must send a Vivecraft VERSION info in that time.")
             .defineInRange(10.0, 0.0, 100.0);
-        vrFun = builder
-            .push("vrFun")
-            .comment("Gives VR Players fun cakes and drinks at random, when they respawn.")
-            .define(true);
         // end general
         builder.pop();
         

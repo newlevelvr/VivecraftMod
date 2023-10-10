@@ -11,8 +11,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -42,14 +40,6 @@ public abstract class CreativeModeInventoryScreenVRMixin extends EffectRendering
 
     @Unique
     private void addCreativeItems(CreativeModeTab tab, NonNullList<ItemStack> list) {
-        if (tab == BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.FOOD_AND_DRINKS) || tab == null) {
-            ItemStack itemstack = (new ItemStack(Items.PUMPKIN_PIE)).setHoverName(Component.literal("EAT ME"));
-            ItemStack itemstack1 = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER).setHoverName(Component.literal("DRINK ME"));
-            itemstack1.getTag().putInt("HideFlags", 32);
-            list.add(itemstack);
-            list.add(itemstack1);
-        }
-
         if (tab == BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.TOOLS_AND_UTILITIES) || tab == null) {
             ItemStack itemstack3 = (new ItemStack(Items.LEATHER_BOOTS)).setHoverName(Component.translatable("vivecraft.item.jumpboots"));
             itemstack3.getTag().putBoolean("Unbreakable", true);
@@ -65,7 +55,7 @@ public abstract class CreativeModeInventoryScreenVRMixin extends EffectRendering
     @Unique
     private void addCreativeSearch(String query, NonNullList<ItemStack> list) {
         NonNullList<ItemStack> nonnulllist = NonNullList.create();
-        addCreativeItems((CreativeModeTab)null, nonnulllist);
+        addCreativeItems(null, nonnulllist);
 
         for (ItemStack itemstack : nonnulllist) {
             if (query.isEmpty() || itemstack.getHoverName().toString().toLowerCase().contains(query.toLowerCase())) {
