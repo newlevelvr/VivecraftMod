@@ -16,6 +16,7 @@ public class ServerConfig {
     // config keys
     public static ConfigBuilder.BooleanValue debug;
     public static ConfigBuilder.BooleanValue checkForUpdate;
+    public static ConfigBuilder.InListValue<String> checkForUpdateType;
     public static ConfigBuilder.BooleanValue vr_only;
     public static ConfigBuilder.BooleanValue vive_only;
     public static ConfigBuilder.BooleanValue allow_op;
@@ -42,10 +43,11 @@ public class ServerConfig {
     public static ConfigBuilder.BooleanValue pvpVRvsNONVR;
     public static ConfigBuilder.BooleanValue pvpSEATEDVRvsNONVR;
     public static ConfigBuilder.BooleanValue pvpVRvsSEATEDVR;
+    public static ConfigBuilder.BooleanValue pvpNotifyBlockedDamage;
 
     public static ConfigBuilder.BooleanValue climbeyEnabled;
-    public static ConfigBuilder.ConfigValue<String> climbeyBlockmode;
-    public static ConfigBuilder.ConfigValue<List<? extends String>> climbeyBlocklist;
+    public static ConfigBuilder.InListValue<String> climbeyBlockmode;
+    public static ConfigBuilder.ListValue<String> climbeyBlocklist;
 
     public static ConfigBuilder.BooleanValue crawlingEnabled;
 
@@ -63,18 +65,19 @@ public class ServerConfig {
 
     private static CommentedFileConfig config;
     private static ConfigBuilder builder;
-    public static List<ConfigBuilder.ConfigValue> getConfigValues(){
+
+    public static List<ConfigBuilder.ConfigValue> getConfigValues() {
         return builder.getConfigValues();
     }
 
-    public static void init(ConfigSpec.CorrectionListener listener){
+    public static void init(ConfigSpec.CorrectionListener listener) {
         Config.setInsertionOrderPreserved(true);
         config = CommentedFileConfig
-                .builder(Xplat.getConfigPath("vivecraft-server-config.toml"))
-                .autosave()
-                .sync()
-                .concurrent()
-                .build();
+            .builder(Xplat.getConfigPath("vivecraft-server-config.toml"))
+            .autosave()
+            .sync()
+            .concurrent()
+            .build();
 
         config.load();
 
@@ -105,6 +108,10 @@ public class ServerConfig {
             .push("checkForUpdate")
             .comment("will check for a newer version and alert any OP when they login to the server.")
             .define(true);
+        checkForUpdateType = builder
+            .push("checkForUpdateType")
+            .comment("What updates to check for.\n r: Release, b: Beta, a: Alpha")
+            .defineInList("r", Arrays.asList("r", "b", "a"));
         vr_only = builder
             .push("vr_only")
             .comment("Set to true to only allow VR players to play.\n If enabled, VR hotswitching will be automatically disabled.")
@@ -123,7 +130,7 @@ public class ServerConfig {
             .defineInRange(10.0, 0.0, 100.0);
         // end general
         builder.pop();
-        
+
         builder
             .push("messages");
         messagesEnabled = builder
@@ -196,6 +203,10 @@ public class ServerConfig {
         builder
             .push("pvp")
             .comment("VR vs. non-VR vs. seated player PVP settings");
+        pvpNotifyBlockedDamage = builder
+            .push("notifyBlockedDamage")
+            .comment("Notifies the player that would cause damage, that it was blocked.")
+            .define(false);
         pvpVRvsVR = builder
             .push("VRvsVR")
             .comment("Allows Standing VR players to damage each other.")
@@ -233,7 +244,7 @@ public class ServerConfig {
         climbeyBlocklist = builder
             .push("blocklist")
             .comment("The list of block names for use with include/exclude block mode.")
-            .defineList(Arrays.asList("white_wool","dirt","grass_block"), (s) -> s instanceof String && BuiltInRegistries.BLOCK.containsKey(new ResourceLocation((String) s)));
+            .defineList(Arrays.asList("white_wool", "dirt", "grass_block"), (s) -> s instanceof String && BuiltInRegistries.BLOCK.containsKey(new ResourceLocation((String) s)));
         // end climbey
         builder.pop();
 
@@ -304,7 +315,4 @@ public class ServerConfig {
         // if the config is outdated, or is missing keys, re add them
         builder.correct(listener);
     }
-
-
-
 }
